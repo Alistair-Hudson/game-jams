@@ -1,0 +1,2 @@
+C:\Users\Alistair\MyGames\game-jams\GameDevtv 2021\Prospector\obj\Debug\Assembly-CSharp.csprojAssemblyReference.cache
+C:\Users\Alistair\MyGames\game-jams\GameDevtv 2021\Prospector\obj\Debug\Assembly-CSharp.csproj.CoreCompileInputs.cache
