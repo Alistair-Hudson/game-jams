@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class TreasureBag : MonoBehaviour
 {
+    [SerializeField] TMP_Text money_text = null;
+
     int money = 0;
 
     private void Awake()
@@ -19,6 +22,11 @@ public class TreasureBag : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        money_text.text = "$" + money.ToString();
+    }
+
     public int GetMoney()
     {
         return money;
@@ -27,6 +35,7 @@ public class TreasureBag : MonoBehaviour
     public void AddMoney(int value)
     {
         money += value;
+        money_text.text = "$" + money.ToString();
     }
 
     public bool SpendMoney(int value)
@@ -36,6 +45,7 @@ public class TreasureBag : MonoBehaviour
             return false;
         }
         money -= value;
+        money_text.text = "$" + money.ToString();
         return true;
     }
 }

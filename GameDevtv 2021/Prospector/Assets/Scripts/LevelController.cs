@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class LevelController : MonoBehaviour
 {
+
     int level_number = 1;
 
     private void Awake()
@@ -46,4 +47,5 @@ public class LevelController : MonoBehaviour
     {
         Application.Quit();
     }
+
 }

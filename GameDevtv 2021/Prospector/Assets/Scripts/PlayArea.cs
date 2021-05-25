@@ -1,19 +1,37 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class PlayArea : MonoBehaviour
 {
     [SerializeField] int grid_size = 10;
+    [SerializeField] int pick_cost = 50;
+    [SerializeField] int test_cost = 10;
+    [SerializeField] Image stability_bar = null;
+    [SerializeField] TMP_Text treasure_remaining = null;
+    [SerializeField] GameObject all_treasure_found_screen = null;
+    [SerializeField] GameObject area_collapse_screen = null;
     [SerializeField] MinableBrick[] brick_prefabs;
     [SerializeField] Treasure[] treasure_prefabs;
 
     int number_of_bricks = 0;
     int number_of_treasures = 0;
 
+    ToolBag toolBag = null;
+    TreasureBag treasureBag = null;
+    LevelController levelController = null;
+
     // Start is called before the first frame update
     void Start()
     {
+        toolBag = FindObjectOfType<ToolBag>();
+        treasureBag = FindObjectOfType<TreasureBag>();
+        levelController = FindObjectOfType<LevelController>();
+        all_treasure_found_screen.SetActive(false);
+        area_collapse_screen.SetActive(false);
+
         for (int i = 0; i < grid_size; ++i)
         {
             for (int j= 0; j < grid_size; ++j)
@@ -52,12 +70,16 @@ public class PlayArea : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        stability_bar.fillAmount = 1;
+        treasure_remaining.text = "Treasure Remaining " + number_of_treasures.ToString();
         if (0 >= number_of_bricks)
         {
+            area_collapse_screen.SetActive(true);
             Debug.Log("Mine Collapse");
         }
         if (0 >= number_of_treasures)
         {
+            all_treasure_found_screen.SetActive(true);
             Debug.Log("All treasures found");
         }
         
@@ -70,6 +92,32 @@ public class PlayArea : MonoBehaviour
 
     public void ReduceTreasureLeft()
     {
-        ++number_of_treasures;
+        --number_of_treasures;
+    }
+
+    public void BuyPick()
+    {
+        if (treasureBag.SpendMoney(pick_cost))
+        {
+            toolBag.AddPick();
+        }
+    }
+
+    public void BuyTest()
+    {
+        if (treasureBag.SpendMoney(test_cost))
+        {
+            toolBag.AddTest();
+        }
+    }
+
+    public void CallNextLevel()
+    {
+        levelController.NextLevel();
+    }
+
+    public void CallMainMenu()
+    {
+        levelController.MainMenu();
     }
 }
