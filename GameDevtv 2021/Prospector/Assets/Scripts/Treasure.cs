@@ -17,7 +17,8 @@ public class Treasure : MonoBehaviour
 {
     [SerializeField] TREASURE_TYPE type = TREASURE_TYPE.GOLD;
     [SerializeField] int value = 0;
-    
+    [SerializeField] AudioClip takeSound = null;
+
 
     public TREASURE_TYPE GetTreasureType()
     {
@@ -31,7 +32,18 @@ public class Treasure : MonoBehaviour
 
     public void TakeTreaure()
     {
-        FindObjectOfType<PlayArea>().ReduceTreasureLeft();
+        AudioSource.PlayClipAtPoint(takeSound, Camera.main.transform.position);
+
+        switch (type)
+        {
+            case TREASURE_TYPE.FOOLS_GOLD:
+                break;
+            case TREASURE_TYPE.GLASS:
+                break;
+            default:
+                FindObjectOfType<PlayArea>().ReduceTreasureLeft();
+                break;
+        }
         Destroy(gameObject);
     }
 

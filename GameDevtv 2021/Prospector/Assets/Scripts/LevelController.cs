@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class LevelController : MonoBehaviour
 {
 
-    int level_number = 1;
+    int level_number= 1;
 
     private void Awake()
     {
@@ -19,6 +19,11 @@ public class LevelController : MonoBehaviour
         {
             DontDestroyOnLoad(gameObject);
         }
+    }
+    
+    public int GetLevelNumber()
+    {
+        return level_number;
     }
 
     public void MainMenu()
@@ -48,4 +53,13 @@ public class LevelController : MonoBehaviour
         Application.Quit();
     }
 
+    public void Credits()
+    {
+        SceneManager.LoadScene(2);
+    }
+
+    public void HowToPlay()
+    {
+        SceneManager.LoadScene(3);
+    }
 }

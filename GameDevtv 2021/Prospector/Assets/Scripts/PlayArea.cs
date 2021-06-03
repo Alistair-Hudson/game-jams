@@ -6,7 +6,6 @@ using TMPro;
 
 public class PlayArea : MonoBehaviour
 {
-    [SerializeField] int grid_size = 10;
     [SerializeField] int pick_cost = 50;
     [SerializeField] int test_cost = 10;
     [SerializeField] Image stability_bar = null;
@@ -15,17 +14,22 @@ public class PlayArea : MonoBehaviour
     [SerializeField] GameObject area_collapse_screen = null;
     [SerializeField] MinableBrick[] brick_prefabs;
     [SerializeField] Treasure[] treasure_prefabs;
+    [SerializeField] AudioClip collapseSound = null;
 
+    int grid_size = 9;
     int number_of_bricks = 0;
     int number_of_treasures = 0;
+    int collapse_number = 0;
 
     ToolBag toolBag = null;
     TreasureBag treasureBag = null;
     LevelController levelController = null;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
+        float treasure_chance = 50 * Mathf.Exp(-FindObjectOfType<LevelController>().GetLevelNumber()/10);
+        grid_size = (int)(3 + Mathf.Log(FindObjectOfType<LevelController>().GetLevelNumber()));
         toolBag = FindObjectOfType<ToolBag>();
         treasureBag = FindObjectOfType<TreasureBag>();
         levelController = FindObjectOfType<LevelController>();
@@ -42,7 +46,7 @@ public class PlayArea : MonoBehaviour
                 newBrick.transform.parent = transform;
                 ++number_of_bricks;
 
-                if (50 >= Random.Range(0, 100))
+                if (treasure_chance >= Random.Range(0, 100))
                 {
                     Treasure newTreasure = Instantiate(treasure_prefabs[Random.Range(0, treasure_prefabs.Length)],
                                                         new Vector3(i, j, 0),
@@ -51,8 +55,10 @@ public class PlayArea : MonoBehaviour
                     switch (newTreasure.GetTreasureType())
                     {
                         case TREASURE_TYPE.GLASS:
+                            number_of_treasures += 0;
                             break;
                         case TREASURE_TYPE.FOOLS_GOLD:
+                            number_of_treasures += 0;
                             break;
                         default:
                             ++number_of_treasures;
@@ -62,25 +68,38 @@ public class PlayArea : MonoBehaviour
             }
         }
 
+        if (0 >= number_of_treasures)
+        {
+            Treasure newTreasure = Instantiate(treasure_prefabs[0],
+                                    new Vector3(Random.Range(0, grid_size), 
+                                                Random.Range(0, grid_size), 
+                                                0),
+                                    Quaternion.identity);
+            newTreasure.transform.parent = transform;
+            ++number_of_treasures;
+        }
+
+        collapse_number = number_of_bricks / 3;
+
         Camera.main.transform.position = new Vector3(grid_size / 2, 
                                                      grid_size / 2, 
                                                      Camera.main.transform.position.z);
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        stability_bar.fillAmount = 1;
+        stability_bar.fillAmount = (float)collapse_number/number_of_bricks;
         treasure_remaining.text = "Treasure Remaining " + number_of_treasures.ToString();
-        if (0 >= number_of_bricks)
+        if (collapse_number >= number_of_bricks)
         {
+            //AudioSource.PlayClipAtPoint(collapseSound, Camera.main.transform.position, 0.5f);
             area_collapse_screen.SetActive(true);
-            Debug.Log("Mine Collapse");
         }
         if (0 >= number_of_treasures)
         {
             all_treasure_found_screen.SetActive(true);
-            Debug.Log("All treasures found");
         }
         
     }

@@ -5,13 +5,17 @@ using TMPro;
 
 public class ToolBag : MonoBehaviour
 {
-    [SerializeField] int number_of_picks = 5;
-    [SerializeField] int number_of_tests = 3;
+    [SerializeField] int starting_picks = 5;
+    [SerializeField] int staring_tests = 3;
     [SerializeField] int pick_durablity = 3;
 
     [SerializeField] TMP_Text picks_text = null;
     [SerializeField] TMP_Text tests_text = null;
 
+    [SerializeField] GameObject out_of_picks = null;
+
+    int number_of_picks = 5;
+    int number_of_tests = 3;
     int current_pick_durabilty = 0;
 
     private void Awake()
@@ -29,9 +33,12 @@ public class ToolBag : MonoBehaviour
 
     private void Start()
     {
+        number_of_picks = starting_picks;
+        number_of_tests = staring_tests;
         current_pick_durabilty = pick_durablity;
         picks_text.text = "x" + number_of_picks.ToString();
         tests_text.text = "x" + number_of_tests.ToString();
+        out_of_picks.SetActive(false);
     }
 
     public void UsePick()
@@ -43,7 +50,7 @@ public class ToolBag : MonoBehaviour
             picks_text.text = "x" + number_of_picks.ToString();
             if (0 >= number_of_picks)
             {
-                Debug.Log("Game over");
+                out_of_picks.SetActive(true);
             }
             current_pick_durabilty = pick_durablity;
         }
@@ -64,11 +71,31 @@ public class ToolBag : MonoBehaviour
     {
         ++number_of_picks;
         picks_text.text = "x" + number_of_picks.ToString();
+        out_of_picks.SetActive(false);
     }
 
     public void AddTest()
     {
         ++number_of_tests;
         tests_text.text = "x" + number_of_tests.ToString();
+    }
+
+    public void NewGame()
+    {
+        number_of_picks = starting_picks;
+        number_of_tests = staring_tests;
+        current_pick_durabilty = pick_durablity;
+        picks_text.text = "x" + number_of_picks.ToString();
+        tests_text.text = "x" + number_of_tests.ToString();
+        out_of_picks.SetActive(false);
+        FindObjectOfType<TreasureBag>().ResetGame();
+        FindObjectOfType<LevelController>().StartGame();
+    }
+
+    public void MainMenu()
+    {
+        FindObjectOfType<TreasureBag>().EndGame();
+        FindObjectOfType<LevelController>().MainMenu();
+        Destroy(gameObject);
     }
 }

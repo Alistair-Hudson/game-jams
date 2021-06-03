@@ -1,17 +1,22 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PlayerControls : MonoBehaviour
 {
+    [SerializeField] GameObject treasure_notification = null;
+    [SerializeField] TMP_Text treasure_notification_text = null;
     ToolBag toolBag = null;
     TreasureBag treasureBag = null;
+
 
     private void Start()
     {
         toolBag = FindObjectOfType<ToolBag>();
         treasureBag = FindObjectOfType<TreasureBag>();
+        treasure_notification.SetActive(false);
     }
 
     private void Update()
@@ -24,6 +29,14 @@ public class PlayerControls : MonoBehaviour
         {
             ProcessTest();
         }
+    }
+
+    IEnumerator DisplayTreasureType(Treasure treasure)
+    {
+        treasure_notification_text.text = "Treasure is " + treasure.GetTreasureType().ToString();
+        treasure_notification.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        treasure_notification.gameObject.SetActive(false);
     }
 
     private void ProcessTest()
@@ -41,17 +54,15 @@ public class PlayerControls : MonoBehaviour
         {
             return;
         }
-        Debug.Log(treasure.GetTreasureType());
+        StartCoroutine(DisplayTreasureType(treasure));
 
     }
 
     private void ProcessMouseDown()
     {
-        Debug.Log("Mouse down");
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if(!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
         {
-            Debug.Log("Nothing hit");
             return;
         }
         if (hit.collider.TryGetComponent<MinableBrick>(out MinableBrick brick))

@@ -48,4 +48,15 @@ public class TreasureBag : MonoBehaviour
         money_text.text = "$" + money.ToString();
         return true;
     }
+
+    public void ResetGame()
+    {
+        money = 0;
+        money_text.text = "$" + money.ToString();
+    }
+
+    public void EndGame()
+    {
+        Destroy(gameObject);
+    }
 }
