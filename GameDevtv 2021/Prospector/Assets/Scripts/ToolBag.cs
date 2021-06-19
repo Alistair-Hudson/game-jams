@@ -41,19 +41,21 @@ public class ToolBag : MonoBehaviour
         out_of_picks.SetActive(false);
     }
 
-    public void UsePick()
+    public bool UsePick()
     {
+        if (0 >= number_of_picks)
+        {
+            out_of_picks.SetActive(true);
+            return false;
+        }
         --current_pick_durabilty;
         if (0 >= current_pick_durabilty)
         {
             --number_of_picks;
             picks_text.text = "x" + number_of_picks.ToString();
-            if (0 >= number_of_picks)
-            {
-                out_of_picks.SetActive(true);
-            }
             current_pick_durabilty = pick_durablity;
         }
+        return true;
     }
 
     public bool UseTest()
@@ -89,13 +91,10 @@ public class ToolBag : MonoBehaviour
         tests_text.text = "x" + number_of_tests.ToString();
         out_of_picks.SetActive(false);
         FindObjectOfType<TreasureBag>().ResetGame();
-        FindObjectOfType<LevelController>().StartGame();
     }
 
     public void MainMenu()
     {
-        FindObjectOfType<TreasureBag>().EndGame();
-        FindObjectOfType<LevelController>().MainMenu();
         Destroy(gameObject);
     }
 }

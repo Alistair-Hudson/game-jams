@@ -10,7 +10,17 @@ public class PlayerControls : MonoBehaviour
     [SerializeField] TMP_Text treasure_notification_text = null;
     ToolBag toolBag = null;
     TreasureBag treasureBag = null;
+    bool isControlActive = true;
 
+    public bool IsControlActive()
+    {
+        return isControlActive;
+    }
+
+    public void SetControlActive(bool state)
+    {
+        isControlActive = state;
+    }
 
     private void Start()
     {
@@ -21,6 +31,10 @@ public class PlayerControls : MonoBehaviour
 
     private void Update()
     {
+        if (!isControlActive)
+        {
+            return;
+        }
         if (Input.GetMouseButtonDown(0))
         {
             ProcessMouseDown();
@@ -67,8 +81,10 @@ public class PlayerControls : MonoBehaviour
         }
         if (hit.collider.TryGetComponent<MinableBrick>(out MinableBrick brick))
         {
-            brick.DecreaseToughness();
-            toolBag.UsePick();
+            if (toolBag.UsePick())
+            {
+                brick.DecreaseToughness();
+            }
             return;
         }
         else if (hit.collider.TryGetComponent<Treasure>(out Treasure treasure))

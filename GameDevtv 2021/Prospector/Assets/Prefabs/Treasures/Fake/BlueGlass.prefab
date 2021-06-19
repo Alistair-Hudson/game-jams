@@ -1592,7 +1592,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 6
-  value: 0
+  value: -25
   takeSound: {fileID: 8300000, guid: d7951cbb8809fcb41a8afa2dc2e5c93c, type: 3}
 --- !u!82 &2864406108342903889
 AudioSource:

@@ -10,8 +10,7 @@ public class PlayArea : MonoBehaviour
     [SerializeField] int test_cost = 10;
     [SerializeField] Image stability_bar = null;
     [SerializeField] TMP_Text treasure_remaining = null;
-    [SerializeField] GameObject all_treasure_found_screen = null;
-    [SerializeField] GameObject area_collapse_screen = null;
+    [SerializeField] TMP_Text AreaCollapseWarning = null;
     [SerializeField] MinableBrick[] brick_prefabs;
     [SerializeField] Treasure[] treasure_prefabs;
     [SerializeField] AudioClip collapseSound = null;
@@ -20,6 +19,7 @@ public class PlayArea : MonoBehaviour
     int number_of_bricks = 0;
     int number_of_treasures = 0;
     int collapse_number = 0;
+    bool sound_playing = false;
 
     ToolBag toolBag = null;
     TreasureBag treasureBag = null;
@@ -28,20 +28,42 @@ public class PlayArea : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        float treasure_chance = 50 * Mathf.Exp(-FindObjectOfType<LevelController>().GetLevelNumber()/10);
+        float treasure_chance = 50 * Mathf.Exp(-FindObjectOfType<LevelController>().GetLevelNumber() / 10);
         grid_size = (int)(3 + Mathf.Log(FindObjectOfType<LevelController>().GetLevelNumber()));
         toolBag = FindObjectOfType<ToolBag>();
         treasureBag = FindObjectOfType<TreasureBag>();
         levelController = FindObjectOfType<LevelController>();
-        all_treasure_found_screen.SetActive(false);
-        area_collapse_screen.SetActive(false);
+        AreaCollapseWarning.gameObject.SetActive(false);
 
+        BuildPlayArea(treasure_chance);
+
+        if (0 >= number_of_treasures)
+        {
+            Treasure newTreasure = Instantiate(treasure_prefabs[0],
+                                    new Vector3(Random.Range(0, grid_size),
+                                                Random.Range(0, grid_size),
+                                                0),
+                                    Quaternion.identity);
+            newTreasure.transform.parent = transform;
+            ++number_of_treasures;
+        }
+
+        collapse_number = number_of_bricks / 3;
+
+        Camera.main.transform.position = new Vector3(grid_size / 2,
+                                                     grid_size / 2,
+                                                     Camera.main.transform.position.z);
+
+    }
+
+    private void BuildPlayArea(float treasure_chance)
+    {
         for (int i = 0; i < grid_size; ++i)
         {
-            for (int j= 0; j < grid_size; ++j)
+            for (int j = 0; j < grid_size; ++j)
             {
-                MinableBrick newBrick = Instantiate(brick_prefabs[Random.Range(0, brick_prefabs.Length)], 
-                                                    new Vector3(i, j, 0), 
+                MinableBrick newBrick = Instantiate(brick_prefabs[Random.Range(0, brick_prefabs.Length)],
+                                                    new Vector3(i, j, 0),
                                                     Quaternion.identity);
                 newBrick.transform.parent = transform;
                 ++number_of_bricks;
@@ -67,24 +89,6 @@ public class PlayArea : MonoBehaviour
                 }
             }
         }
-
-        if (0 >= number_of_treasures)
-        {
-            Treasure newTreasure = Instantiate(treasure_prefabs[0],
-                                    new Vector3(Random.Range(0, grid_size), 
-                                                Random.Range(0, grid_size), 
-                                                0),
-                                    Quaternion.identity);
-            newTreasure.transform.parent = transform;
-            ++number_of_treasures;
-        }
-
-        collapse_number = number_of_bricks / 3;
-
-        Camera.main.transform.position = new Vector3(grid_size / 2, 
-                                                     grid_size / 2, 
-                                                     Camera.main.transform.position.z);
-
     }
 
     // Update is called once per frame
@@ -94,14 +98,14 @@ public class PlayArea : MonoBehaviour
         treasure_remaining.text = "Treasure Remaining " + number_of_treasures.ToString();
         if (collapse_number >= number_of_bricks)
         {
-            //AudioSource.PlayClipAtPoint(collapseSound, Camera.main.transform.position, 0.5f);
-            area_collapse_screen.SetActive(true);
+            if (!sound_playing)
+            {
+                sound_playing = true;
+                AudioSource.PlayClipAtPoint(collapseSound, Camera.main.transform.position);
+            }
+            FindObjectOfType<PlayerControls>().SetControlActive(false);
+            AreaCollapseWarning.gameObject.SetActive(true);
         }
-        if (0 >= number_of_treasures)
-        {
-            all_treasure_found_screen.SetActive(true);
-        }
-        
     }
 
     public void ReduceBricksLeft()
@@ -132,11 +136,15 @@ public class PlayArea : MonoBehaviour
 
     public void CallNextLevel()
     {
+        AreaCollapseWarning.gameObject.SetActive(false);
         levelController.NextLevel();
     }
 
     public void CallMainMenu()
     {
+        FindObjectOfType<HSHandler>().AddScore("Player", levelController.GetLevelNumber());
         levelController.MainMenu();
+        FindObjectOfType<TreasureBag>().EndGame();
+        FindObjectOfType<ToolBag>().MainMenu();
     }
 }
